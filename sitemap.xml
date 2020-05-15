@@ -14,4 +14,12 @@
     <loc>https://fevin.github.io/tags/</loc>
   </url>
   
+  <url>
+    <loc>https://fevin.github.io/archives/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fevin.github.io/search/</loc>
+  </url>
+  
 </urlset>
