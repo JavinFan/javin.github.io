@@ -6,7 +6,7 @@
     <description>Recent content on fevin&#39;s art</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-CN</language>
-    <lastBuildDate>Fri, 15 May 2020 10:50:43 +0800</lastBuildDate>
+    <lastBuildDate>Fri, 15 May 2020 10:10:57 +0800</lastBuildDate>
     
 	<atom:link href="https://fevin.github.io/index.xml" rel="self" type="application/rss+xml" />
     
@@ -18,6 +18,15 @@
       
       <guid>https://fevin.github.io/post/go-log-zap-ext/</guid>
       <description>&lt;p&gt;&lt;code&gt;zlog&lt;/code&gt; 将对 &lt;code&gt;zap&lt;/code&gt; 进行扩展，增加 &lt;code&gt;writer buffer&lt;/code&gt;、&lt;code&gt;k=v encoder&lt;/code&gt; 等功能。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>关于我</title>
+      <link>https://fevin.github.io/about/</link>
+      <pubDate>Fri, 15 May 2020 10:10:57 +0800</pubDate>
+      
+      <guid>https://fevin.github.io/about/</guid>
+      <description>test 熟悉 C++ Golang</description>
     </item>
     
     <item>
