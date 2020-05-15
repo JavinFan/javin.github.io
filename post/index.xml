@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>fevin&#39;s art</title>
-    <link>https://fevin.github.io/</link>
-    <description>Recent content on fevin&#39;s art</description>
+    <title>Posts on fevin&#39;s art</title>
+    <link>https://fevin.github.io/post/</link>
+    <description>Recent content in Posts on fevin&#39;s art</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-CN</language>
     <lastBuildDate>Fri, 15 May 2020 10:50:43 +0800</lastBuildDate>
     
-	<atom:link href="https://fevin.github.io/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://fevin.github.io/post/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
@@ -27,24 +27,6 @@
       
       <guid>https://fevin.github.io/post/go-modules-use-tutorial/</guid>
       <description>&lt;p&gt;&lt;a href=&#34;https://github.com/golang/go/wiki/Modules&#34;&gt;Go Modules&lt;/a&gt;  是 Go1.11 新增的特性，从官方层面支持对依赖库的管理。Go1.14 已经可以将 Go Modules 应用于生产环境了。这将极大的方便 Go 的依赖管理，也标志着 Go 的依赖管理上了个新台阶。&lt;/p&gt;</description>
-    </item>
-    
-    <item>
-      <title>归档</title>
-      <link>https://fevin.github.io/archives/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://fevin.github.io/archives/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>搜索</title>
-      <link>https://fevin.github.io/search/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://fevin.github.io/search/</guid>
-      <description></description>
     </item>
     
   </channel>
