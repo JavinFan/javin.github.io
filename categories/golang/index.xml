@@ -17,7 +17,7 @@
       <pubDate>Fri, 15 May 2020 10:50:43 +0800</pubDate>
       
       <guid>https://fevin.github.io/post/go-log-zap-ext/</guid>
-      <description>&lt;p&gt;&lt;code&gt;zlog&lt;/code&gt; 将对 &lt;code&gt;zap&lt;/code&gt; 进行扩展，增加 &lt;code&gt;writer buffer&lt;/code&gt;、&lt;code&gt;k=v encoder&lt;/code&gt; 等功能。&lt;/p&gt;</description>
+      <description>&lt;p&gt;&lt;code&gt;zlog&lt;/code&gt; 对 &lt;code&gt;zap&lt;/code&gt; 进行扩展，增加 &lt;code&gt;writer buffer&lt;/code&gt;、&lt;code&gt;k=v encoder&lt;/code&gt; 等功能。&lt;/p&gt;</description>
     </item>
     
     <item>
