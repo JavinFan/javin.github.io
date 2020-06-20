@@ -1,0 +1,720 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta name="google-site-verification" content="fP3kUTYVrmwncQjGGuGRnVurGCh5kz9k_1V2-ca53Q8" />
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>CLIPS 规则引擎介绍与使用 | fevin&#39;s art</title>
+    <meta property="og:title" content="CLIPS 规则引擎介绍与使用 - fevin&#39;s art">
+    <meta property="og:type" content="article">
+        
+    <meta property="article:published_time" content='2020-06-20T12:26:53&#43;08:00'>
+        
+        
+    <meta property="article:modified_time" content='2020-06-20T12:26:53&#43;08:00'>
+        
+    <meta name="Keywords" content="[clips rule-engine expert-system]">
+    <meta name="description" content="CLIPS 规则引擎介绍与使用">
+        
+    <meta name="author" content="fevin">
+    <meta property="og:url" content="https://fevin.github.io/post/clips-rule-engine-introduction/">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+
+    <link rel="stylesheet" href='/css/normalize.css'>
+    <link rel="stylesheet" href='/css/style.css'>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    
+
+
+    
+    
+        <link rel="stylesheet" href='/css/douban.css'>
+    
+        <link rel="stylesheet" href='/css/other.css'>
+    
+
+    
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-165622482-1', 'auto');
+    ga('send', 'pageview');
+    </script>
+    
+
+    
+    <script>
+    (function(){
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        }
+        else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+    </script>
+    
+</head>
+
+
+<body>
+    <header id="header" class="clearfix">
+    <div class="container">
+        <div class="col-group">
+            <div class="site-name ">
+                
+                    <a id="logo" href="https://fevin.github.io/">
+                        fevin&#39;s art
+                    </a>
+                
+                <p class="description">技术也是一种艺术</p>
+            </div>
+            <div>
+                <nav id="nav-menu" class="clearfix">
+                    <a class="current" href="https://fevin.github.io/">首页</a>
+                    
+                    <a  href="https://fevin.github.io/archives/" title="归档">归档</a>
+                    
+                    <a  href="https://fevin.github.io/about/" title="关于">关于</a>
+                    
+                </nav>
+            </div>
+        </div>
+    </div>
+</header>
+
+    <div id="body">
+        <div class="container">
+            <div class="col-group">
+
+                <div class="col-8" id="main">
+                    
+<div class="res-cons">
+    
+
+    <article class="post">
+        <header>
+            <h1 class="post-title">CLIPS 规则引擎介绍与使用</h1>
+        </header>
+        <date class="post-meta meta-date">
+            2020年6月20日
+        </date>
+        
+        <div class="post-meta">
+            <span>|</span>
+            
+            <span class="meta-category"><a href='https://fevin.github.io/categories/rule-engine'>rule-engine</a></span>
+            
+        </div>
+        
+        
+        <div class="post-meta">
+            <span id="busuanzi_container_page_pv">|<span id="busuanzi_value_page_pv"></span><span>
+                    阅读</span></span>
+        </div>
+        
+        
+        <div class="post-content">
+            <p><a href="http://www.clipsrules.net/">CLIPS</a> 是一个用来构建专家系统的工具。通过本文，我们来一起了解一下规则引擎的一些基本概念、 <code>CLIPS</code> 的基础语法、如何在 <code>C++</code> 项目里集成 <code>CLIPS</code>、以及如何对 <code>CLIPS</code> 进行性能调优。</p>
+<!-- raw HTML omitted -->
+<h2 id="什么是规则引擎"><strong>什么是规则引擎</strong></h2>
+<p><a href="https://baike.baidu.com/item/%E8%A7%84%E5%88%99%E5%BC%95%E6%93%8E">百度百科解释</a>：</p>
+<blockquote>
+<p>规则引擎由推理引擎发展而来，是一种嵌入在应用程序中的组件，实现了将业务决策从应用程序代码中分离出来，并使用预定义的语义模块编写业务决策。接受数据输入，解释业务规则，并根据业务规则做出业务决策。</p>
+</blockquote>
+<p>简单来说，规则引擎是一种推理引擎，它是根据已有的事实（变量），从规则库中匹配规则，并处理存在冲突的规则，执行最后筛选通过的规则。</p>
+<p>规则的一般形式如下：</p>
+<pre><code>IF 条件
+THEN 操作
+</code></pre><p>常见的规则引擎实现：</p>
+<ul>
+<li>
+<p><a href="https://www.drools.org/">Drools</a> Java 实现的规则引擎</p>
+</li>
+<li>
+<p><a href="http://www.clipsrules.net/">CLIPS</a> C 实现的规则引擎</p>
+</li>
+<li>
+<p><a href="https://jess.sandia.gov/">Jess</a> CLIPS 的 Java 实现</p>
+</li>
+<li>
+<p><a href="http://www.flagleader.com/">Visual Rules 旗正规则引擎</a> 国内商业规则引擎品牌</p>
+</li>
+<li>
+<p><a href="http://www.bstek.com/">URULE PRO</a> 国内商业规则引擎品牌</p>
+</li>
+</ul>
+<h2 id="clips-简介"><strong>CLIPS 简介</strong></h2>
+<p><code>CLIPS</code> 于 1984 年由美国航空航天局约翰逊空间中心（NASA’s Johnson Space Center）推出，意在克服 <code>LISP</code> 移植性差、开发工具和硬件成本高、嵌入性低的缺点。<code>CLIPS</code> 是一个基于 <a href="https://en.wikipedia.org/wiki/Rete_algorithm">Rete 算法</a> 的前向推理语言，用标准 C 语言编写。它具有高移植性、高扩展性、强大的知识表达能力和编程方式以及低成本等特点。</p>
+<p><a href="http://www.clipsrules.net/AboutCLIPS.html">官方介绍</a> 如下：</p>
+<blockquote>
+<p>Developed at NASA’s Johnson Space Center from 1985 to 1996, the C Language Integrated Production System (CLIPS) is a rule-based programming language useful for creating expert systems and other programs where a heuristic solution is easier to implement and maintain than an algorithmic solution. Written in C for portability, CLIPS can be installed and used on a wide variety of platforms. Since 1996, CLIPS has been available as public domain software.</p>
+</blockquote>
+<h2 id="clips-规则引擎学习方法"><strong>CLIPS 规则引擎学习方法</strong></h2>
+<p><code>CLIPS</code> 学习文档：<a href="http://www.clipsrules.net/Documentation.html">http://www.clipsrules.net/Documentation.html</a></p>
+<h3 id="了解-clips-的基础概念和语法"><strong>了解 CLIPS 的基础概念和语法</strong></h3>
+<p>首先需要了解 <code>CLIPS</code> 的基础概念和语法（入门参考书籍：<a href="http://www.clipsrules.net/Documentation.html">《CLIPS User’s Guide》</a>）。书中介绍了 <code>CLIPS</code> 基础概念介绍和语法。</p>
+<p>然后下载并安装 <a href="https://sourceforge.net/projects/clipsrules/files/CLIPS/6.30/">CLIPS interface</a>，根据 《CLIPS User’s Guide》 中的示例，边看边操作。</p>
+<p><code>CLIPS IDE</code> 界面如下：</p>
+<p><img src="https://fevin.oss-cn-beijing.aliyuncs.com/img/1588410269280.png" alt=""></p>
+<p><code>CLIPS IDE</code> 使用方式可以参考书籍：<a href="http://www.clipsrules.net/Documentation.html">《CLIPS Interfaces Guide》</a>。</p>
+<p>了解完基础知识之后，可以再看一下更详细一些的基础知识点和使用方法：<a href="http://www.clipsrules.net/Documentation.html">《CLIPS Basic Programming Guide》</a>。</p>
+<h3 id="尝试在-clips-interface-写一段-clips-代码"><strong>尝试在 CLIPS interface 写一段 CLIPS 代码</strong></h3>
+<p><code>CLIPS</code> 代码意图：</p>
+<ol>
+<li>
+<p>定义两个阶段：</p>
+<ol>
+<li>执行规则；</li>
+<li>获取规则执行结果；</li>
+</ol>
+</li>
+<li>
+<p>定义阶段控制流程，并提供 <code>CLIPS</code> 结果获取函数；</p>
+</li>
+</ol>
+<p>代码示例：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">31
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">32
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">33
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">34
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">35
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">36
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">37
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">38
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">39
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">40
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">41
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">42
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">43
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">44
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">45
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">46
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">47
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">48
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">49
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">50
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">51
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp"><span style="color:#998;font-style:italic">;; 控制信息</span>
+(<span style="color:#008080">deffacts</span> <span style="color:#008080">control-info</span>
+  (<span style="color:#008080">phase-after</span> <span style="color:#008080">exe_rule</span> <span style="color:#008080">result</span>)
+)
+
+(<span style="color:#008080">defrule</span> <span style="color:#008080">phase-transfer</span>
+  (<span style="color:#000;font-weight:bold">declare</span> (<span style="color:#008080">salience</span> <span style="color:#099">-100</span>))
+  <span style="color:#008080">?phase</span> <span style="color:#008080">&lt;-</span> (<span style="color:#900;font-weight:bold">phase</span> <span style="color:#008080">?current</span>)
+  (<span style="color:#008080">phase-after</span> <span style="color:#008080">?current</span> <span style="color:#008080">?next</span>)
+<span style="color:#008080">=&gt;</span>
+  (<span style="color:#008080">retract</span> <span style="color:#008080">?phase</span>)
+  (<span style="color:#0086b3">assert</span> (<span style="color:#900;font-weight:bold">phase</span> <span style="color:#008080">?next</span>))
+)
+
+<span style="color:#998;font-style:italic">;; clips 结果模板</span>
+(<span style="color:#008080">deftemplate</span> <span style="color:#008080">clips_result</span>
+    (<span style="color:#008080">multislot</span> <span style="color:#008080">hits</span>)
+)
+ 
+<span style="color:#998;font-style:italic">;; 规则结果模板</span>
+(<span style="color:#008080">deftemplate</span> <span style="color:#008080">hit</span>
+  (<span style="color:#008080">slot</span> <span style="color:#008080">key</span>)
+  (<span style="color:#008080">slot</span> <span style="color:#008080">val</span>)
+)
+ 
+<span style="color:#998;font-style:italic">;; 默认规则结果</span>
+(<span style="color:#008080">deffacts</span> <span style="color:#008080">default_clips_result</span>
+  (<span style="color:#008080">clips_result</span> (<span style="color:#008080">hits</span> <span style="color:#008080">nil</span>))
+)
+ 
+<span style="color:#998;font-style:italic">;; 获取规则执行结果</span>
+(<span style="color:#008080">deffunction</span> <span style="color:#008080">get-clips-result</span> ()
+  (<span style="color:#900;font-weight:bold">nth</span> <span style="color:#099">1</span> (<span style="color:#008080">find-fact</span> ((<span style="color:#008080">?fact</span> <span style="color:#008080">clips_result</span>)) <span style="color:#008080">TRUE</span>)))
+ 
+<span style="color:#998;font-style:italic">;; 生成结果 hits</span>
+(<span style="color:#008080">defrule</span> <span style="color:#008080">RES_result</span>
+  (<span style="color:#900;font-weight:bold">phase</span> <span style="color:#008080">result</span>)
+  (<span style="color:#900;font-weight:bold">not</span> (<span style="color:#008080">DISABLE_RES_RESULT</span>))
+  <span style="color:#008080">?current</span> <span style="color:#008080">&lt;-</span> (<span style="color:#008080">clips_result</span>)
+<span style="color:#008080">=&gt;</span>
+  (<span style="color:#0086b3">assert</span> (<span style="color:#008080">DISABLE_RES_RESULT</span>))
+  (<span style="color:#008080">modify</span> <span style="color:#008080">?current</span> (<span style="color:#008080">hits</span> (<span style="color:#008080">find-all-facts</span> ((<span style="color:#008080">?hit</span> <span style="color:#008080">hit</span>)) (<span style="color:#008080">neq</span> <span style="color:#008080">?hit:val</span> <span style="color:#008080">nil</span>))))
+)
+
+<span style="color:#998;font-style:italic">;; 测试规则</span>
+(<span style="color:#008080">defrule</span> <span style="color:#008080">R1</span>
+  (<span style="color:#900;font-weight:bold">phase</span> <span style="color:#008080">exe_rule</span>)
+  (<span style="color:#008080">var1</span> <span style="color:#099">1</span>)
+  <span style="color:#008080">=&gt;</span>
+  (<span style="color:#0086b3">assert</span> (<span style="color:#008080">hit</span> (<span style="color:#008080">key</span> <span style="color:#d14">&#34;testrule1&#34;</span>) (<span style="color:#008080">val</span> <span style="color:#099">1</span>) ))
+)
+</code></pre></td></tr></table>
+</div>
+</div><p>将上述 <code>CLIPS</code> 代码保存到一个文件中（ <code>clips-code.clp</code>），并在 <code>CLIPS interface</code> 加载。</p>
+<p>然后在 <code>CLIPS interface</code> 执行如下命令，最终我们利用 <code>get-clips-result</code> 函数，获取到规则推导出的结果。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">31
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">32
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">33
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">34
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">35
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">36
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">37
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">         <span style="color:#008080">CLIPS</span> (<span style="color:#099">6.31</span> <span style="color:#008080">6/12/19</span>)
+<span style="color:#008080">CLIPS&gt;</span> (<span style="color:#900;font-weight:bold">load</span> <span style="color:#d14">&#34;clips-code.clp&#34;</span>)
+<span style="color:#008080">Defining</span> <span style="color:#008080">deffacts:</span> <span style="color:#008080">control-info</span>
+<span style="color:#008080">Defining</span> <span style="color:#008080">defrule:</span> <span style="color:#008080">phase-transfer</span> <span style="color:#008080">+j+j+j</span>
+<span style="color:#008080">Defining</span> <span style="color:#008080">deftemplate:</span> <span style="color:#008080">clips_result</span>
+<span style="color:#008080">Defining</span> <span style="color:#008080">deftemplate:</span> <span style="color:#008080">hit</span>
+<span style="color:#008080">Defining</span> <span style="color:#008080">deffacts:</span> <span style="color:#008080">default_clips_result</span>
+<span style="color:#008080">Defining</span> <span style="color:#008080">deffunction:</span> <span style="color:#008080">get-clips-result</span>
+<span style="color:#008080">Defining</span> <span style="color:#008080">defrule:</span> <span style="color:#008080">RES_result</span> <span style="color:#008080">+j+j+j+j</span>
+<span style="color:#008080">Defining</span> <span style="color:#008080">defrule:</span> <span style="color:#008080">R1</span> <span style="color:#008080">+j+j+j</span>
+<span style="color:#008080">TRUE</span>
+<span style="color:#008080">CLIPS&gt;</span> (<span style="color:#008080">reset</span>)
+<span style="color:#008080">CLIPS&gt;</span> (<span style="color:#008080">facts</span>)
+<span style="color:#008080">f-0</span>     (<span style="color:#008080">initial-fact</span>)
+<span style="color:#008080">f-1</span>     (<span style="color:#008080">phase-after</span> <span style="color:#008080">exe_rule</span> <span style="color:#008080">result</span>)
+<span style="color:#008080">f-2</span>     (<span style="color:#008080">clips_result</span> (<span style="color:#008080">hits</span> <span style="color:#008080">nil</span>))
+<span style="color:#008080">For</span> <span style="color:#008080">a</span> <span style="color:#008080">total</span> <span style="color:#008080">of</span> <span style="color:#099">3</span> <span style="color:#008080">facts.</span>
+<span style="color:#008080">CLIPS&gt;</span> (<span style="color:#0086b3">assert</span> (<span style="color:#900;font-weight:bold">phase</span> <span style="color:#008080">exe_rule</span>) (<span style="color:#008080">var1</span> <span style="color:#099">1</span>))
+<span style="color:#008080">&lt;Fact-4&gt;</span>
+<span style="color:#008080">CLIPS&gt;</span> (<span style="color:#008080">agenda</span>)
+<span style="color:#099">0</span>      <span style="color:#008080">R1:</span> <span style="color:#008080">f-3,f-4</span>
+<span style="color:#099">-100</span>   <span style="color:#008080">phase-transfer:</span> <span style="color:#008080">f-3,f-1</span>
+<span style="color:#008080">For</span> <span style="color:#008080">a</span> <span style="color:#008080">total</span> <span style="color:#008080">of</span> <span style="color:#099">2</span> <span style="color:#008080">activations.</span>
+<span style="color:#008080">CLIPS&gt;</span> (<span style="color:#008080">run</span>)
+<span style="color:#008080">CLIPS&gt;</span> (<span style="color:#008080">facts</span>)
+<span style="color:#008080">f-0</span>     (<span style="color:#008080">initial-fact</span>)
+<span style="color:#008080">f-1</span>     (<span style="color:#008080">phase-after</span> <span style="color:#008080">exe_rule</span> <span style="color:#008080">result</span>)
+<span style="color:#008080">f-4</span>     (<span style="color:#008080">var1</span> <span style="color:#099">1</span>)
+<span style="color:#008080">f-5</span>     (<span style="color:#008080">hit</span> (<span style="color:#008080">key</span> <span style="color:#d14">&#34;testrule1&#34;</span>) (<span style="color:#008080">val</span> <span style="color:#099">1</span>))
+<span style="color:#008080">f-6</span>     (<span style="color:#900;font-weight:bold">phase</span> <span style="color:#008080">result</span>)
+<span style="color:#008080">f-7</span>     (<span style="color:#008080">DISABLE_RES_RESULT</span>)
+<span style="color:#008080">f-8</span>     (<span style="color:#008080">clips_result</span> (<span style="color:#008080">hits</span> <span style="color:#008080">&lt;Fact-5&gt;</span>))
+<span style="color:#008080">For</span> <span style="color:#008080">a</span> <span style="color:#008080">total</span> <span style="color:#008080">of</span> <span style="color:#099">7</span> <span style="color:#008080">facts.</span>
+<span style="color:#008080">CLIPS&gt;</span> (<span style="color:#008080">agenda</span>)
+<span style="color:#008080">CLIPS&gt;</span> (<span style="color:#008080">get-clips-result</span>)
+<span style="color:#008080">&lt;Fact-8&gt;</span>
+<span style="color:#008080">CLIPS&gt;</span> 
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="在-cc-程序中嵌入-clips"><strong>在 C/C++ 程序中嵌入 CLIPS</strong></h3>
+<p>我们可以直接将 <code>CLIPS</code> 源码集成到自己的项目里，对此 <code>CLIPS</code> 也提供了一些基本的 API 文档：<a href="http://www.clipsrules.net/Documentation.html">《CLIPS Advanced Programming Guide》</a></p>
+<p>基本逻辑是：</p>
+<ol>
+<li>
+<p>定义规则模板，规则执行阶段控制逻辑；</p>
+</li>
+<li>
+<p>加载规则库，创建 <code>CLIPS</code> 执行实例；</p>
+</li>
+<li>
+<p>将变量转换成 <code>CLIPS</code> 事实（facts）；</p>
+</li>
+<li>
+<p>执行 <code>CLIPS</code> 规则；</p>
+</li>
+<li>
+<p>获取 <code>CLIPS</code> 规则模板生成结果；</p>
+</li>
+</ol>
+<p>具体的接入及使用 <code>DEMO</code> 可以参考：<a href="https://github.com/fevin/clips-project">clips-project</a></p>
+<h2 id="对-clips-进行性能调优"><strong>对 CLIPS 进行性能调优</strong></h2>
+<h3 id="执行-profile"><strong>执行 profile</strong></h3>
+<p>以上文规则为例。</p>
+<h4 id="使用-clips-code查看性能"><strong>使用 <code>CLIPS code</code>，查看性能</strong></h4>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp"><span style="color:#008080">CLIPS&gt;</span> (<span style="color:#900;font-weight:bold">load</span> <span style="color:#d14">&#34;clips-code-2.clp&#34;</span>)
+<span style="color:#008080">Defining</span> <span style="color:#008080">deffacts:</span> <span style="color:#008080">control-info</span>
+<span style="color:#008080">Defining</span> <span style="color:#008080">defrule:</span> <span style="color:#008080">phase-transfer</span> <span style="color:#008080">+j+j+j</span>
+<span style="color:#008080">Defining</span> <span style="color:#008080">deftemplate:</span> <span style="color:#008080">clips_result</span>
+<span style="color:#008080">Defining</span> <span style="color:#008080">deftemplate:</span> <span style="color:#008080">hit</span>
+<span style="color:#008080">Defining</span> <span style="color:#008080">deffacts:</span> <span style="color:#008080">default_clips_result</span>
+<span style="color:#008080">Defining</span> <span style="color:#008080">deffunction:</span> <span style="color:#008080">get-clips-result</span>
+<span style="color:#008080">Defining</span> <span style="color:#008080">defrule:</span> <span style="color:#008080">RES_result</span> <span style="color:#008080">+j+j+j+j</span>
+<span style="color:#008080">Defining</span> <span style="color:#008080">defrule:</span> <span style="color:#008080">R1</span> <span style="color:#008080">+j+j+j</span>
+<span style="color:#008080">TRUE</span>
+<span style="color:#008080">CLIPS&gt;</span> (<span style="color:#008080">reset</span>)
+<span style="color:#008080">CLIPS&gt;</span> (<span style="color:#0086b3">assert</span> (<span style="color:#900;font-weight:bold">phase</span> <span style="color:#008080">exe_rule</span>) (<span style="color:#008080">var1</span> <span style="color:#099">1</span>))
+<span style="color:#008080">&lt;Fact-4&gt;</span>
+<span style="color:#008080">CLIPS&gt;</span> (<span style="color:#000;font-weight:bold">progn</span> (<span style="color:#008080">profile-reset</span>)
+(<span style="color:#008080">profile</span> <span style="color:#008080">constructs</span>)
+(<span style="color:#008080">run</span>)
+(<span style="color:#008080">profile</span> <span style="color:#008080">off</span>))
+<span style="color:#008080">CLIPS&gt;</span> (<span style="color:#008080">foreach</span> <span style="color:#008080">?m</span> (<span style="color:#008080">get-defmodule-list</span>)
+(<span style="color:#008080">set-current-module</span> <span style="color:#008080">?m</span>)
+(<span style="color:#008080">profile-info</span>))
+<span style="color:#008080">Profile</span> <span style="color:#008080">elapsed</span> <span style="color:#0086b3">time</span> <span style="color:#900;font-weight:bold">=</span> <span style="color:#099">0.000112</span> <span style="color:#008080">seconds</span>
+<span style="color:#008080">Construct</span> <span style="color:#008080">Name</span>                           <span style="color:#008080">Entries</span>         <span style="color:#008080">Time</span>           <span style="color:#008080">%</span>          <span style="color:#008080">Time+Kids</span>     <span style="color:#008080">%+Kids</span>
+<span style="color:#008080">--------------</span>                           <span style="color:#008080">-------</span>        <span style="color:#008080">------</span>        <span style="color:#008080">-----</span>        <span style="color:#008080">---------</span>     <span style="color:#008080">------</span>
+
+<span style="color:#008080">***</span> <span style="color:#008080">Defrules</span> <span style="color:#008080">***</span>
+
+<span style="color:#008080">phase-transfer</span>                                 <span style="color:#099">1</span>        <span style="color:#099">0.000039</span>     <span style="color:#008080">34.82%</span>         <span style="color:#099">0.000039</span>     <span style="color:#008080">34.82%</span>
+<span style="color:#008080">RES_result</span>                                     <span style="color:#099">1</span>        <span style="color:#099">0.000039</span>     <span style="color:#008080">34.82%</span>         <span style="color:#099">0.000039</span>     <span style="color:#008080">34.82%</span>
+<span style="color:#008080">R1</span>                                             <span style="color:#099">1</span>        <span style="color:#099">0.000007</span>      <span style="color:#008080">6.25%</span>         <span style="color:#099">0.000007</span>      <span style="color:#008080">6.25%</span>
+<span style="color:#008080">CLIPS&gt;</span> 
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="使用-c-api-查看性能"><strong>使用 C API 查看性能</strong></h4>
+<p>示例代码可参考：<a href="https://github.com/fevin/clips-project">clips-project</a>。</p>
+<p>基本逻辑如下：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++">Profile(clips, <span style="color:#d14">&#34;constructs&#34;</span>); <span style="color:#998;font-style:italic">// 或 Profile(clips, &#34;user-functions&#34;);
+</span><span style="color:#998;font-style:italic"></span>EnvRun(clips, <span style="color:#099">10000</span>);
+Profile(clips, <span style="color:#d14">&#34;off&#34;</span>);
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="执行-watch-命令查看规则执行过程"><strong>执行 watch 命令，查看规则执行过程</strong></h3>
+<p>主要利用 <code>(watch xx)</code> <code>(unwatch xx)</code> 两个命令。如果想查看具体某类元素，还可以指定类型，如 <code>(watch facts)</code>，详细使用参见：<a href="http://www.clipsrules.net/Documentation.html">《CLIPS Basic Programming Guide》</a>。</p>
+<p>本次以 <code>watch all</code> 为例，<code>CLIPS</code> 代码示例如下：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp"><span style="color:#008080">CLIPS&gt;</span> (<span style="color:#900;font-weight:bold">load</span> <span style="color:#d14">&#34;clips-code-2.clp&#34;</span>)
+<span style="color:#008080">Defining</span> <span style="color:#008080">deffacts:</span> <span style="color:#008080">control-info</span>
+<span style="color:#008080">Defining</span> <span style="color:#008080">defrule:</span> <span style="color:#008080">phase-transfer</span> <span style="color:#008080">+j+j+j</span>
+<span style="color:#008080">Defining</span> <span style="color:#008080">deftemplate:</span> <span style="color:#008080">clips_result</span>
+<span style="color:#008080">Defining</span> <span style="color:#008080">deftemplate:</span> <span style="color:#008080">hit</span>
+<span style="color:#008080">Defining</span> <span style="color:#008080">deffacts:</span> <span style="color:#008080">default_clips_result</span>
+<span style="color:#008080">Defining</span> <span style="color:#008080">deffunction:</span> <span style="color:#008080">get-clips-result</span>
+<span style="color:#008080">Defining</span> <span style="color:#008080">defrule:</span> <span style="color:#008080">RES_result</span> <span style="color:#008080">+j+j+j+j</span>
+<span style="color:#008080">Defining</span> <span style="color:#008080">defrule:</span> <span style="color:#008080">R1</span> <span style="color:#008080">+j+j+j</span>
+<span style="color:#008080">TRUE</span>
+<span style="color:#008080">CLIPS&gt;</span> (<span style="color:#008080">reset</span>)
+<span style="color:#008080">CLIPS&gt;</span> (<span style="color:#008080">watch</span> <span style="color:#008080">all</span>)
+<span style="color:#008080">CLIPS&gt;</span> (<span style="color:#0086b3">assert</span> (<span style="color:#900;font-weight:bold">phase</span> <span style="color:#008080">exe_rule</span>) (<span style="color:#008080">var1</span> <span style="color:#099">1</span>))
+<span style="color:#008080">==&gt;</span> <span style="color:#008080">f-3</span>     (<span style="color:#900;font-weight:bold">phase</span> <span style="color:#008080">exe_rule</span>)
+<span style="color:#008080">==&gt;</span> <span style="color:#008080">Activation</span> <span style="color:#099">-100</span>   <span style="color:#008080">phase-transfer:</span> <span style="color:#008080">f-3,f-1</span>
+<span style="color:#008080">==&gt;</span> <span style="color:#008080">f-4</span>     (<span style="color:#008080">var1</span> <span style="color:#099">1</span>)
+<span style="color:#008080">==&gt;</span> <span style="color:#008080">Activation</span> <span style="color:#099">0</span>      <span style="color:#008080">R1:</span> <span style="color:#008080">f-3,f-4</span>
+<span style="color:#008080">&lt;Fact-4&gt;</span>
+<span style="color:#008080">CLIPS&gt;</span> (<span style="color:#008080">unwatch</span> <span style="color:#008080">all</span>)
+<span style="color:#008080">CLIPS&gt;</span> (<span style="color:#008080">run</span>)
+<span style="color:#008080">CLIPS&gt;</span> (<span style="color:#008080">facts</span>)
+<span style="color:#008080">f-0</span>     (<span style="color:#008080">initial-fact</span>)
+<span style="color:#008080">f-1</span>     (<span style="color:#008080">phase-after</span> <span style="color:#008080">exe_rule</span> <span style="color:#008080">result</span>)
+<span style="color:#008080">f-4</span>     (<span style="color:#008080">var1</span> <span style="color:#099">1</span>)
+<span style="color:#008080">f-5</span>     (<span style="color:#008080">hit</span> (<span style="color:#008080">key</span> <span style="color:#d14">&#34;testrule1&#34;</span>) (<span style="color:#008080">val</span> <span style="color:#099">1</span>))
+<span style="color:#008080">f-6</span>     (<span style="color:#900;font-weight:bold">phase</span> <span style="color:#008080">result</span>)
+<span style="color:#008080">f-7</span>     (<span style="color:#008080">DISABLE_RES_RESULT</span>)
+<span style="color:#008080">f-8</span>     (<span style="color:#008080">clips_result</span> (<span style="color:#008080">hits</span> <span style="color:#008080">&lt;Fact-5&gt;</span>))
+<span style="color:#008080">For</span> <span style="color:#008080">a</span> <span style="color:#008080">total</span> <span style="color:#008080">of</span> <span style="color:#099">7</span> <span style="color:#008080">facts.</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><code>C API</code> 操作示例如下：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++">EnvWatch(clips, <span style="color:#d14">&#34;all&#34;</span>);
+EnvRun(clips, <span style="color:#099">10000</span>);
+EnvUnwatch(clips, <span style="color:#d14">&#34;all&#34;</span>);
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="加速-clips-规则库加载"><strong>加速 CLIPS 规则库加载</strong></h3>
+<p><code>CLIPS env</code> 实例不能深拷贝，所以如果想要加速规则库的加载速度，我们可以采用二进制文件加载的方式。</p>
+<p>具体思路为：</p>
+<ol>
+<li>
+<p>将 <code>CLIPS</code> load；</p>
+</li>
+<li>
+<p>save <code>CLIPS</code> env 为二进制文件；</p>
+</li>
+<li>
+<p>以后创建 <code>CLIPS</code> env，直接 load 之前保存的二进制文件即可；</p>
+</li>
+</ol>
+<p>这些操作都有对应的命令或 <code>API</code>。</p>
+<p>相关命令：<code>bsave</code> / <code>bload</code></p>
+<p>命令使用示例：</p>
+<pre><code>         CLIPS (6.31 6/12/19)
+CLIPS&gt; (bsave example.bin)
+TRUE
+CLIPS&gt; (bload example.bin)
+TRUE
+</code></pre><p><code>C API</code>  示例：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++">EnvBsave(clips_env, clips_bin_path.c_str());
+EnvBload(clips_env, clips_bin_path.c_str());
+</code></pre></td></tr></table>
+</div>
+</div><p>相关问题参考：</p>
+<p>* <a href="https://stackoverflow.com/questions/58262820/copy-construction-for-an-enviromen-in-clips">Copy construction for an enviromen in clips?</a></p>
+<h3 id="降低-clips-内存占用"><strong>降低 CLIPS 内存占用</strong></h3>
+<p>降低 <code>CLIPS</code> 内存占用，除了降低规则库数量外，我们还可以通过一些内置开关参数来控制。</p>
+<p><code>C API</code> 中参数如下：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#999;font-weight:bold;font-style:italic">#define OBJECT_SYSTEM 0 </span><span style="color:#998;font-style:italic">// 关闭 clips 面向对象功能，节省内存
+</span><span style="color:#998;font-style:italic"></span><span style="color:#999;font-weight:bold;font-style:italic">#define EXTENDED_MATH_FUNCTIONS 0 </span><span style="color:#998;font-style:italic">// 关闭扩展数学函数（cos/sin etc.）
+</span><span style="color:#998;font-style:italic"></span><span style="color:#999;font-weight:bold;font-style:italic">#define DEFGLOBAL_CONSTRUCT 0 </span><span style="color:#998;font-style:italic">// 关闭 defglobal
+</span><span style="color:#998;font-style:italic"></span><span style="color:#999;font-weight:bold;font-style:italic">#define DEFGENERIC_CONSTRUCT 0 </span><span style="color:#998;font-style:italic">// 关闭 defgeneric
+</span><span style="color:#998;font-style:italic"></span><span style="color:#999;font-weight:bold;font-style:italic">#define DEBUGGING_FUNCTIONS 0 </span><span style="color:#998;font-style:italic">// 关闭调试命令：agenda, facts, ppdefrule, ppdeffacts, etc
+</span><span style="color:#998;font-style:italic"></span><span style="color:#999;font-weight:bold;font-style:italic">#define CONSTRUCT_COMPILER 0 </span><span style="color:#998;font-style:italic">// 关闭编译成 c 结构的功能，涉及命令： constructs-to-c
+</span></code></pre></td></tr></table>
+</div>
+</div><p>以上参数全部关闭，可能会降低 20% 左右的内存使用。更多参数可以参考：<a href="http://www.clipsrules.net/Documentation.html">《CLIPS Advanced Programming Guide》</a>。</p>
+
+        </div>
+
+        
+<div class="post-archive">
+    <ul class="post-copyright">
+        <li><strong>原文作者：</strong><a rel="author" href="https://fevin.github.io/">fevin</a></li>
+        <li style="word-break:break-all"><strong>原文链接：</strong><a href="https://fevin.github.io/post/clips-rule-engine-introduction/">https://fevin.github.io/post/clips-rule-engine-introduction/</a></li>
+        <li><strong>版权声明：</strong>本作品采用<a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/">知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议</a>进行许可，非商业转载请注明出处（作者，原文链接），商业转载请联系作者获得授权。</li>
+    </ul>
+</div>
+<br/>
+
+
+
+        
+
+
+        <div class="post-meta meta-tags">
+            
+            <ul class="clearfix">
+                
+                <li><a href='https://fevin.github.io/tags/rule-engine'>rule-engine</a></li>
+                
+            </ul>
+            
+        </div>
+    </article>
+    
+    
+
+    
+    
+    <div class="post bg-white">
+      <script src="https://utteranc.es/client.js"
+            repo= "fevin/fevin.github.io"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+      </script>
+    </div>
+    
+</div>
+
+                </div>
+
+                
+                
+            </div>
+        </div>
+    </div>
+    <footer id="footer">
+    <div class="container">
+        &copy; 2020 <a href="https://fevin.github.io/">fevin&#39;s art By fevin</a>.
+        Powered by <a rel="nofollow noreferer noopener" href="https://gohugo.io" target="_blank">Hugo</a>.
+        <a href="https://www.flysnow.org/" target="_blank">Theme</a> based on <a href="https://github.com/flysnow-org/maupassant-hugo" target="_blank">maupassant</a>.
+        
+    </div>
+</footer>
+
+
+    
+    <script type="text/javascript">
+        window.MathJax = {
+            tex2jax: {
+                inlineMath: [['$', '$']],
+                processEscapes: true
+                }
+            };
+    </script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+
+
+<a id="rocket" href="#top"></a>
+<script type="text/javascript" src='/js/totop.js?v=0.0.0' async=""></script>
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-165622482-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+
+
+
+
+    <script src='/js/douban.js'></script>
+
+</body>
+
+</html>

@@ -6,10 +6,19 @@
     <description>Recent content in Posts on fevin&#39;s art</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-CN</language>
-    <lastBuildDate>Fri, 15 May 2020 10:50:43 +0800</lastBuildDate>
+    <lastBuildDate>Sat, 20 Jun 2020 12:26:53 +0800</lastBuildDate>
     
 	<atom:link href="https://fevin.github.io/post/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>CLIPS 规则引擎介绍与使用</title>
+      <link>https://fevin.github.io/post/clips-rule-engine-introduction/</link>
+      <pubDate>Sat, 20 Jun 2020 12:26:53 +0800</pubDate>
+      
+      <guid>https://fevin.github.io/post/clips-rule-engine-introduction/</guid>
+      <description>CLIPS 是一个用来构建专家系统的工具。通过本文，我们来一起了解一下规则引擎的一些基本概念、 CLIPS 的基础语法、如何在 C++ 项目里集成 CLIPS、以及如何对 CLIPS</description>
+    </item>
     
     <item>
       <title>Go 高性能日志库 zap 扩展（zlog）</title>
