@@ -101,7 +101,119 @@
                 <div class="col-8" id="main">
                     
 <div class="res-cons">
-    
+    <style type="text/css">
+    .post-toc {
+        position: fixed;
+        width:fit-content;
+        width:-webkit-fit-content;
+        width:-moz-fit-content;
+        max-width: 300px;
+        min-width: 100px;
+        right: 10%;
+        padding: 5px 10px;
+        font-family: Athelas, STHeiti, Microsoft Yahei, serif;
+        font-size: 12px;
+        border: 1px solid rgba(0, 0, 0, .07);
+        border-radius: 5px;
+        background-color: rgba(255, 255, 255, 0.98);
+        background-clip: padding-box;
+        -webkit-box-shadow: 1px 1px 2px rgba(0, 0, 0, .125);
+        box-shadow: 1px 1px 2px rgba(0, 0, 0, .125);
+        word-wrap: break-word;
+        white-space: nowrap;
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+        z-index: 999;
+        cursor: pointer;
+        max-height: 70%;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .post-toc .post-toc-title {
+        width: 100%;
+        margin: 0 auto;
+        font-size: 20px;
+        font-weight: 400;
+        text-transform: uppercase;
+        text-align: center;
+    }
+
+    .post-toc .post-toc-content {
+        font-size: 15px;
+    }
+
+    .post-toc .post-toc-content>nav>ul {
+        margin: 10px 0;
+    }
+
+    .post-toc .post-toc-content ul {
+        padding-left: 20px;
+        list-style: square;
+        margin: 0.5em;
+        line-height: 1.8em;
+    }
+
+    .post-toc .post-toc-content ul ul {
+        padding-left: 15px;
+        display: none;
+    }
+
+    @media print,
+    screen and (max-width:1057px) {
+        .post-toc {
+            display: none;
+        }
+    }
+</style>
+<div class="post-toc" style="position: absolute; top: 188px;">
+    <h2 class="post-toc-title">文章目录</h2>
+    <div class="post-toc-content">
+        <nav id="TableOfContents">
+  <ul>
+    <li><a href="#什么是规则引擎"><strong>什么是规则引擎</strong></a></li>
+    <li><a href="#clips-简介"><strong>CLIPS 简介</strong></a></li>
+    <li><a href="#clips-规则引擎学习方法"><strong>CLIPS 规则引擎学习方法</strong></a>
+      <ul>
+        <li><a href="#了解-clips-的基础概念和语法"><strong>了解 CLIPS 的基础概念和语法</strong></a></li>
+        <li><a href="#尝试在-clips-interface-写一段-clips-代码"><strong>尝试在 CLIPS interface 写一段 CLIPS 代码</strong></a></li>
+        <li><a href="#在-cc-程序中嵌入-clips"><strong>在 C/C++ 程序中嵌入 CLIPS</strong></a></li>
+      </ul>
+    </li>
+    <li><a href="#对-clips-进行性能调优"><strong>对 CLIPS 进行性能调优</strong></a>
+      <ul>
+        <li><a href="#执行-profile"><strong>执行 profile</strong></a></li>
+        <li><a href="#执行-watch-命令查看规则执行过程"><strong>执行 watch 命令，查看规则执行过程</strong></a></li>
+        <li><a href="#加速-clips-规则库加载"><strong>加速 CLIPS 规则库加载</strong></a></li>
+        <li><a href="#降低-clips-内存占用"><strong>降低 CLIPS 内存占用</strong></a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var postToc = $(".post-toc");
+        if (postToc.length) {
+            var t = postToc.offset().top - 20,
+                a = {
+                    start: {
+                        position: "absolute",
+                        top: t
+                    },
+                    process: {
+                        position: "fixed",
+                        top: 20
+                    },
+                };
+            $(window).scroll(function () {
+                var e = $(window).scrollTop();
+                e < t ? postToc.css(a.start) : postToc.css(a.process)
+            })
+        }
+    })
+</script>
 
     <article class="post">
         <header>
@@ -124,6 +236,12 @@
                     阅读</span></span>
         </div>
         
+        
+        <div class="clear" style="display: none">
+            <div class="toc-article">
+                <div class="toc-title">文章目录</div>
+            </div>
+        </div>
         
         <div class="post-content">
             <p><a href="http://www.clipsrules.net/">CLIPS</a> 是一个用来构建专家系统的工具。通过本文，我们来一起了解一下规则引擎的一些基本概念、 <code>CLIPS</code> 的基础语法、如何在 <code>C++</code> 项目里集成 <code>CLIPS</code>、以及如何对 <code>CLIPS</code> 进行性能调优。</p>
